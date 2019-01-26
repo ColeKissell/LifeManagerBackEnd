@@ -42,7 +42,6 @@ const GoalType = new GraphQLObjectType({
         todos: {
             type: new GraphQLList(TodoType),
             resolve(parent, args){
-                console.log(parent);
                 return Todo.find({goalId: parent.id})
             }
         }
@@ -92,6 +91,9 @@ const Mutation = new GraphQLObjectType({
                 completed: { type: GraphQLBoolean },
             },
             resolve(parent, args){
+                if(args.completed == null){
+                    args.completed = false;
+                }
                 let mytodo = new Todo({
                     body: args.body,
                     goalId: args.goalId,
@@ -121,7 +123,70 @@ const Mutation = new GraphQLObjectType({
                 });
                 return goal.save();
             }
-        }
+        },
+        removeTodo:{
+            type: TodoType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLID)}
+            },
+            resolve(parent, args){
+                const removed = Todo.findByIdAndRemove(args.id).exec();
+                if (!removed) {
+                    throw new Error('Error')
+                }
+                return removed;
+            }
+        },
+        removeGoal:{
+            type: GoalType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLID)}
+            },
+            resolve(parent, args){
+                const removed = Goal.findByIdAndRemove(args.id).exec();
+                if (!removed) {
+                    throw new Error('Error')
+                }
+                return removed;
+            }
+        },
+        updateTodo:{
+            type: TodoType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLID)},
+                body: { type: GraphQLString },
+                goalId: {type: GraphQLID},
+                completed: { type: GraphQLBoolean },
+            },
+            resolve(parent, args){
+                const updated = Todo.findByIdAndUpdate(
+                    args.id, args
+                ).exec();
+                if (!updated) {
+                    throw new Error('Error')
+                }
+                return updated;
+            }
+        },
+        updateGoal:{
+            type: GoalType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLID)},
+                name: { type: GraphQLString },
+                description: { type: GraphQLString },
+                dueDate: { type: GraphQLString },
+                completed: { type: GraphQLBoolean },
+            },
+            resolve(parent, args){
+                const updated = Goal.findByIdAndUpdate(
+                    args.id, args
+                ).exec();
+                if (!updated) {
+                    throw new Error('Error')
+                }
+                return updated;
+            }
+        },
     }
 });
 
