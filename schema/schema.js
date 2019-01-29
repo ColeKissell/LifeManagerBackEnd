@@ -113,6 +113,9 @@ const Mutation = new GraphQLObjectType({
                 // stepsRequired:{type: GraphQLList},
             },
             resolve(parent, args){
+                if(args.completed == null){
+                    args.completed = false;
+                }
                 let goal = new Goal({
                     name: args.name,
                     description: args.description,
